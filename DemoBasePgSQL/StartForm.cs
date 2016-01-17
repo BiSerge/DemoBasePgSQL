@@ -72,7 +72,51 @@ namespace DemoBasePgSQL
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
+            int index = dataGridView1.SelectedRows[0].Index;
+            int id = 0;
+            bool converted = Int32.TryParse(dataGridView1[0, index].Value.ToString(), out id);
+            if (converted == false)
+                return;
 
+            EditForm frmEdit = new EditForm();
+            NpgsqlDataReader npgSqlDataReader;
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(connStr))
+            using (NpgsqlCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = @"SELECT * FROM friends WHERE id=@id;";
+                cmd.Parameters.Add(new NpgsqlParameter("@id", id));
+
+                npgSqlDataReader = cmd.ExecuteReader();
+
+                foreach (DbDataRecord dbDataRecord in npgSqlDataReader)
+                {
+                    frmEdit.textBoxLastName.Text = dbDataRecord["lastname"].ToString();
+                    frmEdit.textBoxFirstName.Text = dbDataRecord["firstname"].ToString();
+                    frmEdit.dtpBirthDate.Value = DateTime.Parse(npgSqlDataReader["birth"].ToString());
+                }
+            }
+
+            
+            DialogResult result = frmEdit.ShowDialog(this);
+
+            if (result == DialogResult.Cancel)
+                return;
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(connStr))
+            using (NpgsqlCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = "UPDATE friends SET lastname=@lastname, firstname=@firstname, birth=@date WHERE id=@id";
+                cmd.Parameters.Add(new NpgsqlParameter("@lastname", frmEdit.textBoxLastName.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("@firstname", frmEdit.textBoxFirstName.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("@date", frmEdit.dtpBirthDate.Value.ToString("yyyy-MM-dd")));
+                cmd.Parameters.Add(new NpgsqlParameter("@id", id));
+                cmd.ExecuteNonQuery();
+            }
+
+            SelectData();
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
