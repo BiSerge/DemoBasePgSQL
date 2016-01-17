@@ -14,12 +14,15 @@ namespace DemoBasePgSQL
 {
     public partial class StartForm : Form
     {
-        private String connStr = "Server=localhost;Port=5432;User=postgres;Password=12564589;Database=demo;";
+        private String connStr; //= "Server=localhost;Port=5432;User=postgres;Password=;Database=demo;";
+        //private NpgsqlConnection conn;
 
         public StartForm()
         {
             InitializeComponent();
-            
+
+            InitConnect();
+
             using (NpgsqlConnection conn = new NpgsqlConnection(connStr))
             using (NpgsqlCommand cmd = conn.CreateCommand())
             {
@@ -121,7 +124,36 @@ namespace DemoBasePgSQL
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(connStr))
+                using (NpgsqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    cmd.CommandText = "DELETE FROM friends WHERE id=@id";
+                    cmd.Parameters.Add(new NpgsqlParameter("@id", dataGridView1.SelectedRows[0].Cells[0].Value.ToString()));
+                    cmd.ExecuteNonQuery();
+                }
+                SelectData();
+            }
+        }
 
+        private void InitConnect()
+        {
+            Logins frmLogins = new Logins();
+            frmLogins.ShowDialog();
+            if (frmLogins.DialogResult == DialogResult.OK)
+            {
+                try
+                {
+                    //conn = new NpgsqlConnection(frmLogins.ConStr().ConnectionString);
+                    connStr = frmLogins.ConStr().ConnectionString;
+                }
+                catch
+                {
+                    MessageBox.Show("НЕ подключился!!!");
+                }
+            }
         }
     }
 }
