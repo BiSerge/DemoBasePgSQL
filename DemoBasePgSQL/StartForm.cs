@@ -48,5 +48,36 @@ namespace DemoBasePgSQL
                 dataGridView1.DataSource = dt;
             }
         }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            EditForm frmEdit = new EditForm();
+            DialogResult result = frmEdit.ShowDialog(this);
+
+            if (result == DialogResult.Cancel)
+                return;
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(connStr))
+            using (NpgsqlCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = @"INSERT INTO friends (lastname, firstname, birth) VALUES(@lastname, @firstname, @birth);";
+                cmd.Parameters.Add(new NpgsqlParameter("@lastname", frmEdit.textBoxLastName.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("@firstname", frmEdit.textBoxFirstName.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("@birth", frmEdit.dtpBirthDate.Value.ToString("yyyy-MM-dd")));
+                cmd.ExecuteScalar();
+            }
+            SelectData();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
