@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Npgsql;
 using System.Data.Common;
@@ -14,7 +8,7 @@ namespace DemoBasePgSQL
 {
     public partial class StartForm : Form
     {
-        private String connStr; //= "Server=localhost;Port=5432;User=postgres;Password=;Database=demo;";
+        private String connStr; //= "Server=localhost;Port=5432;User=postgres;Password=;Database=;";
         //private NpgsqlConnection conn;
 
         public StartForm()
